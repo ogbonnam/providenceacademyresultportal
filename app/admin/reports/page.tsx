@@ -1,21 +1,39 @@
-import ReportEntryForm from "@/components/report/ScoreEntryForm";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth-options";
-import { redirect } from "next/navigation";
+// import ReportEntryForm from "@/components/report/ScoreEntryForm";
+// import { getServerSession } from "next-auth";
+// import { authOptions } from "@/lib/auth-options";
+// import { redirect } from "next/navigation";
+// import AdminLayout from "@/components/dashboard/AdminLayout";
+
+// export default async function ReportEntryPage() {
+//   // const session = await getServerSession(authOptions);
+
+//   // if (!session || session.user.role !== "ADMIN" && session.user.role !== "teacher") {
+//   //   redirect("/");
+//   // }
+
+//   return (
+//     <AdminLayout>
+//       <main className="container mx-auto p-4 md:p-8 text-black">
+//         <ReportEntryForm />
+//       </main>
+//     </AdminLayout>
+//   );
+// }
+
+
+import TeacherSubjectSelector from "@/components/report/TeacherSubjectSelector";
 import AdminLayout from "@/components/dashboard/AdminLayout";
+import { getTeachersAndSubjects } from "@/app/actions/reports";
 
 export default async function ReportEntryPage() {
-  // const session = await getServerSession(authOptions);
-
-  // if (!session || session.user.role !== "ADMIN" && session.user.role !== "teacher") {
-  //   redirect("/");
-  // }
+  const teachersWithSubjects = await getTeachersAndSubjects();
 
   return (
     <AdminLayout>
       <main className="container mx-auto p-4 md:p-8 text-black">
-        <ReportEntryForm />
+        <TeacherSubjectSelector teachersWithSubjects={teachersWithSubjects} />
       </main>
     </AdminLayout>
   );
 }
+
