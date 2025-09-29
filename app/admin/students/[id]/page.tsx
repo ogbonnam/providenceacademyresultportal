@@ -5,14 +5,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-type Params = {
-  params: {
-    id: string;
-  };
-};
 
-export default async function StudentDetailsPage({ params }: Params){
-  const { id } = params;
+
+export default async function StudentDetailsPage(props: any) {
+  const { params } = props ?? {};
+  const id: string | undefined = params?.id;
+
+  if (!id) {
+    return notFound();
+  }
   const result = await getUserDetails(id);
 
   if (result.error || !result.user || result.user.role !== "student") {
