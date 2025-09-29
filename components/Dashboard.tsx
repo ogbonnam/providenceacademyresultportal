@@ -21,7 +21,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userRole }) => {
     case "student":
       return <StudentDashboard />;
     case "teacher":
-      return <TeacherDashboard />;
+      return <TeacherDashboard teacher={{} as any} />;
     case "parent":
       return <ParentDashboard />;
     default:
