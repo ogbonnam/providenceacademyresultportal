@@ -5,11 +5,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-export default async function ParentDetailsPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+type Params = {
+  params: {
+    id: string;
+  };
+};
+
+export default async function ParentDetailsPage({ params }: Params) {
   const { id } = params;
   const result = await getUserDetails(id);
 
