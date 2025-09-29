@@ -13,11 +13,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Noble Hall Sixth Form Foundation",
-  description: "Official portal for Noble Hall Sixth Form Foundation",
+  title: "Providence British Academy",
+  description: "Official portal for Providence British Academy Result Publisher",
   manifest: "/manifest.json",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/images/logo.jpg",
     apple: "/icons/N1.png",
   },
 };
