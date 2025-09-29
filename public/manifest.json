@@ -1,0 +1,20 @@
+{
+  "name": "Noble Hall Sixth Form Foundation",
+  "short_name": "Noble Hall",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#004080",
+  "icons": [
+    {
+      "src": "/icons/NH1.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/NH2.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

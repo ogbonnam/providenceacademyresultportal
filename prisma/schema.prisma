@@ -1,0 +1,237 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Define the UserStatus enum to track active/deactivated users
+enum UserStatus {
+  active
+  deactivated
+}
+
+// New enum for Score publishing workflow
+enum ScoreStatus {
+  draft      // Teacher is still editing
+  submitted  // Teacher submitted for reviewnp
+  approved   // Admin approved & published
+  rejected   // Admin rejected, sent back (optional)
+}
+
+// Auth.js models (No changes needed here)
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("auth_account")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("auth_session")
+}
+
+// Our core User model with all application-specific fields
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String
+  role          String    @default("student")
+  
+  // New status field, defaults to 'active'
+  status        UserStatus @default(active)
+
+  // Fields for students
+  dateOfBirth   DateTime?
+  nationality   String?
+  state         String?
+  boardingStatus String?
+  level         String?
+  photoUrl      String?
+
+  // Fields for parents and teachers (reusing address)
+  address       String?
+  phone         String?
+  gender        String?
+  occupation    String?
+
+  // New fields for teachers
+  designation   String? // e.g., 'Head of Department', 'Principal'
+  
+  // Parent-Student Relationship
+  parentId      String?
+  parent        User?     @relation("ParentToStudents", fields: [parentId], references: [id], onDelete: SetNull)
+  students      User[]    @relation("ParentToStudents")
+
+  // Corrected relationships with explicit names
+  subjectsTeaching TeacherSubject[] @relation("TeacherToSubjects")
+  subjectsTaking   StudentSubject[] @relation("StudentToSubjects")
+  
+  accounts      Account[]
+  sessions      Session[]
+
+  // New Timetable relationship
+  timetableEntries TimetableEntry[]
+
+  // New Educational Video relationship
+  videos          EducationalVideo[]
+
+  // Admin approval relation for scores
+  approvedScores Score[] @relation("ApprovedScores")
+
+  @@map("users")
+}
+
+// A model to represent a school subject, like "Physics" or "Maths".
+model Subject {
+  id            String           @id @default(cuid())
+  name          String           @unique
+  description   String?
+  teachers      TeacherSubject[] @relation("SubjectToTeachers")
+  students      StudentSubject[] @relation("SubjectToStudents")
+  
+  // New Timetable relationship
+  timetableEntries TimetableEntry[]
+  
+  // New Educational Video relationship
+  videos          EducationalVideo[]
+}
+
+// A junction table to handle the many-to-many relationship between Teachers and Subjects.
+model TeacherSubject {
+  id            String   @id @default(cuid())
+  teacherId     String
+  teacher       User     @relation("TeacherToSubjects", fields: [teacherId], references: [id])
+  subjectId     String
+  subject       Subject  @relation("SubjectToTeachers", fields: [subjectId], references: [id])
+
+  @@unique([teacherId, subjectId])
+}
+
+// A junction table for the many-to-many relationship between Students and Subjects.
+model StudentSubject {
+  id            String          @id @default(cuid())
+  studentId     String
+  student       User            @relation("StudentToSubjects", fields: [studentId], references: [id])
+  subjectId     String
+  subject       Subject         @relation("SubjectToStudents", fields: [subjectId], references: [id])
+  scores        Score[]
+  
+  @@unique([studentId, subjectId])
+}
+
+// A model to store scores for a student in a specific subject with a more detailed structure.
+model Score {
+  id               String          @id @default(cuid())
+  studentSubjectId String          @unique
+  studentSubject   StudentSubject  @relation(fields: [studentSubjectId], references: [id], onDelete: Cascade)
+  
+  // New fields for the detailed scoring system
+  score1           Float           @default(0) // Research/Test (20%)
+  score2           Float           @default(0) // Project (20%)
+  exam             Float           @default(0) // Exam (60%)
+  total            Float           @default(0) // Automatically calculated
+  comment          String?
+  attendance       Int             @default(0)
+
+  // New publishing workflow fields
+  status           ScoreStatus     @default(draft)
+  publishedAt      DateTime?
+  approvedById     String?
+  approvedBy       User?           @relation("ApprovedScores", fields: [approvedById], references: [id], onDelete: SetNull)
+
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("auth_verification_token")
+}
+
+// New enums for Timetable
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
+
+enum TimeSlot {
+  TIME_08_30_09_30
+  TIME_09_30_10_30
+  TIME_10_30_11_00_BREAK
+  TIME_11_00_12_00
+  TIME_12_00_13_00
+  TIME_13_00_14_00_BREAK
+  TIME_14_00_15_00
+}
+
+// New model for the Timetable Entry
+model TimetableEntry {
+  id        String       @id @default(cuid())
+  day       DayOfWeek
+  time      TimeSlot
+  subjectId String?
+  subject   Subject?     @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  teacherId String?
+  teacher   User?        @relation(fields: [teacherId], references: [id], onDelete: SetNull)
+
+  @@unique([day, time])
+}
+
+// New model for Events
+model Event {
+  id        String   @id @default(cuid())
+  title     String
+  date      DateTime
+  createdAt DateTime @default(now())
+}
+
+// New model for Educational Videos
+model EducationalVideo {
+  id           String   @id @default(cuid())
+  title        String
+  youtubeUrl   String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  subjectId    String
+  subject      Subject  @relation(fields: [subjectId], references: [id])
+  
+  uploaderId   String
+  uploader     User     @relation(fields: [uploaderId], references: [id])
+}
