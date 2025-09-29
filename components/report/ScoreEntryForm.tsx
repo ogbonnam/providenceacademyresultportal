@@ -9,8 +9,16 @@ import {
   Teacher,
   Subject,
   Student,
+  FetchedScore
 } from "@/app/actions/reports";
 import { FaSave, FaSync, FaExclamationCircle } from "react-icons/fa";
+
+interface ReportEntryFormProps {
+  students: Student[];
+  initialScores: FetchedScore[];
+  subjectId: string;
+}
+
 
 interface ScoreState {
   score1: number;
@@ -21,7 +29,13 @@ interface ScoreState {
   status?: "draft" | "submitted";
 }
 
-export default function ReportEntryForm() {
+
+
+export default function ReportEntryForm({
+  students: propStudents,
+  initialScores,
+  subjectId,
+}: ReportEntryFormProps) {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [selectedTeacherId, setSelectedTeacherId] = useState("");
@@ -100,7 +114,8 @@ export default function ReportEntryForm() {
                 exam: existingScore.exam,
                 comment: existingScore.comment || "",
                 attendance: existingScore.attendance,
-                status: existingScore.status as "draft" | "submitted",
+                status: ((existingScore as any).status as "draft" | "submitted") ?? "draft",
+
               }
             : {
                 score1: 0,
