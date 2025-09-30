@@ -26,7 +26,7 @@ export default function EducationalVideosDashboard({
   );
 
   return (
-    <div className="space-y-6 p-6 bg-gray-100 rounded-lg shadow-inner">
+    <div className="space-y-6 p-6 bg-gray-100 text-black rounded-lg shadow-inner">
       <h1 className="text-3xl font-bold text-gray-900">
         Educational Video Management
       </h1>

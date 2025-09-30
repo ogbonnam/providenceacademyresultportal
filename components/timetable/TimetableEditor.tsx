@@ -147,7 +147,7 @@ export default function TimetableEditor({
   }, [initialTimetable]);
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 max-w-full overflow-x-auto relative">
+    <div className="bg-white text-black rounded-lg shadow-lg p-6 max-w-full overflow-x-auto relative">
       {message && (
         <div
           className={`p-3 rounded-md mb-4 ${
@@ -175,7 +175,7 @@ export default function TimetableEditor({
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="bg-white text-black divide-y divide-gray-200">
           {days.map((day) => (
             <tr key={day}>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -226,7 +226,7 @@ export default function TimetableEditor({
 
       {/* Edit Modal / Form */}
       {selectedCell && !selectedCell.time.includes("BREAK") && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-gray-600 text-black bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-xl w-96">
             <h3 className="text-xl font-bold mb-4">Edit Timetable Entry</h3>
             <div className="space-y-4">
